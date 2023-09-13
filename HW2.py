@@ -19,3 +19,11 @@ print(S2[1:]+S2[0]) # slice the string from position 1 to end of string and then
 S3 = input("Enter the name:") #Reading the first,middle and last name from user
 initial="".join([new[0] for new in S3.split()]) #split the  input string and for each strung after split get the character from position 0
 print("The initial are:",initial.upper()) # convert the initial to uppercase and print
+
+# ----------------------- Question 3 end ----------------------------------------------
+
+# HW2 Question 4
+from itertools import product
+S6 =  input("Enter the input string:")
+combine=[''.join(s)  for s in product(*zip(S6.lower(),S6.upper()))]
+print(combine)
