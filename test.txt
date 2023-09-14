@@ -1,0 +1,4 @@
+Data science has so far mainly been used for positive outcomes for businesses and society,for example in risk management, to predict terrorist attacks or detect tax fraud,or in a business setting to increase profitability and revenues or reduce costs.
+Citizens have enjoyed better more efficient services thanks to data science.
+However, just as with any technology, data science has also come with some negative consequences: an increase of privacy invasion,
+data-driven discrimination against sensitive groups, and data-driven decision-making without explanations.
