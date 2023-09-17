@@ -36,27 +36,16 @@ while True:
 
 # ----------------------- Question 4 end ----------------------------------------------
 #HW2 Question 5
-from collections import Counter
-S5=input("Enter the string:")
-character_count=Counter(s.lower() for s in S5 if s.isalpha())
-count_length={count:chars for chars,count in character_count.items()}
-
-for count,character_count in sorted(count_length.items()):
-    print(f"character repeated {count} times:", ','.join(character_count))
-
-
-
 
 from collections import Counter
 
-input_string = input("Enter a string: ").lower()
-char_count = Counter(filter(str.isalpha, input_string))
+S5 = input("Enter the input string")
+chars_count = Counter(S5) #to count the occurrences of each character in the input string
+res = {count: [char for char in chars_count if chars_count[char] == count] for count in set(chars_count.values())}
 
-for char, count in char_count.items():
-    if count == 1:
-        print(char, end=',')
-    else:
-        print(f"{char}={count}")
+#set is used to count unique character int the string
+for count, characters in res.items():
+    print(f"character repeated of length  {count} are : {''.join(characters)}")
 # ----------------------- Question 5 end ----------------------------------------------
 # HW2 Question 6
 from itertools import product
@@ -64,10 +53,14 @@ S6 =  input("Enter the input string:")
 combine=[''.join(s)  for s in product(*zip(S6.lower(),S6.upper()))]
 print(combine)
 
+#S6.lower and upper converted to create pairs of character,pairs are created using ip function and the
+# pairs are calculated as cartesian product using product function and store all the pairs in list and
+# iterate through list and combine all the possible combination of character from list.
+
 # ----------------------- Question 6 end ----------------------------------------------
 
 # HW Question 7
-from collections import OrderedDict
+
 from collections import Counter
 with open('/home/ubuntu/NLP_AWS/test.txt','r') as f:
     print(f.readlines()) #read all the lines from the text file
