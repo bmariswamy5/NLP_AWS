@@ -3,11 +3,12 @@ import os
 import nltk
 import pandas as pd
 from nltk.tokenize import sent_tokenize,word_tokenize
+nltk.download('punkt')
 # ----------------------------------------------------------------------------------------------------------------------
 with open('sample.txt','r') as f:
     text=f.read()
-sentence=sent_tokenize(text)
-sentence_data   = {'Sentence': sentence, 'Word Count': [len(word_tokenize(sentence)) for sentence in sentence]}
+sentences=sent_tokenize(text)
+sentence_data   = {'Sentence': sentences, 'Word Count': [len(word_tokenize(sentence)) for sentence in sentences]}
 dataframe=pd.DataFrame(sentence_data)
 
 output= "Text Feature"
