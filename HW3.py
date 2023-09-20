@@ -4,6 +4,12 @@ import nltk
 from nltk.tokenize import word_tokenize,sent_tokenize
 from nltk.stem import WordNetLemmatizer
 from nltk import FreqDist
+
+nltk.download('punkt')
+nltk.download('averaged_perceptron_tagger')
+nltk.download('wordnet')
+
+
 # 1) Load the text file
 with open('/home/ubuntu/NLP_AWS/Moby.txt','r',encoding='utf-8') as f:
    moby_text= f.read()
