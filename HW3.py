@@ -58,3 +58,46 @@ print("The average number of token per sentence are:",number_of_tokens / len(sen
 pos_tags = nltk.pos_tag(text_words)
 pos_freq_dist = FreqDist(tag for word, tag in pos_tags)
 print("Frequent part of speech:",pos_freq_dist.most_common(5))
+
+#----------------------------- END of Question 1 ------------------------------------------------------------------
+
+# Question 2
+from urllib import request
+from bs4 import BeautifulSoup
+from nltk import word_tokenize
+import nltk
+
+
+#----------------------------- END of Question 2 ------------------------------------------------------------------
+
+# Question 3
+
+# 1) Load the data and view first few sentences
+with open('/home/ubuntu/NLP_AWS/Twitter.txt','r',encoding='utf-8') as f:
+   Twitter_text= f.read()
+
+print(Twitter_text[:1000])
+
+# 2) Split data into sentences using "\n"
+Sentences=Twitter_text.split("\n")
+print(Sentences[:100])
+
+
+# 3)Split sentence into list of words and covert all tokens intp lower case
+list_words = [sentence.lower().split() for sentence in Sentences]
+print(list_words[:100])
+
+# 4)Split data into training and tests sets
+split_ratio = 0.8
+split_index = int(len(list_words ) * split_ratio)
+train_data = list_words [:split_index]
+test_data = list_words [split_index:]
+print(train_data[:100],'\n',test_data[:100])
+
+# 5)Count the frequency of words
+from collections import Counter
+words_count = [word for sentence in train_data for word in sentence]
+print( Counter(words_count))
+
+
+#----------------------------- END of Question 2 ------------------------------------------------------------------
