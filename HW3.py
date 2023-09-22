@@ -62,11 +62,47 @@ print("Frequent part of speech:",pos_freq_dist.most_common(5))
 #----------------------------- END of Question 1 ------------------------------------------------------------------
 
 # Question 2
-from urllib import request
+import requests
 from bs4 import BeautifulSoup
-from nltk import word_tokenize
-import nltk
+from nltk.corpus import words
+from nltk.stem import PorterStemmer
+from nltk import FreqDist
+def scrape_and_clean(url):
+   response = requests.get(url)
+   if response.status_code != 200:
+      return None
+   soup = BeautifulSoup(response.text, 'html.parser')
+   text = soup.get_text()
+   return text
 
+
+def unknown(text,word_set):
+   return ' '.join(word for word in text.split() if word.lower() not in word_set)
+
+
+def find_novel_words(text):
+   return set(text.split())
+def find_proper_names(word_list):
+   return [word for word in word_list if word.istitle()]
+
+
+url = 'https://en.wikipedia.org/wiki/Benjamin_Franklin'
+
+cleaned_text = scrape_and_clean(url) # scrape web and get raw text and clean the file
+
+word_set=set(words.words())
+filtered_text = unknown(cleaned_text,word_set) #remove common words
+
+novel_words=find_novel_words(filtered_text) # find novel words
+
+porter = PorterStemmer() # stem novel words
+novel_stems = ' '.join(porter.stem(word) for word in novel_words)
+
+proper_names = find_proper_names(filtered_text.split()) # find proper names from novel stem chatgpt referenced
+
+print("Novel Words:", list(novel_words))
+print("\nNovel Stems:", novel_stems.split())
+print("\nProper Names:", proper_names)
 
 #----------------------------- END of Question 2 ------------------------------------------------------------------
 
