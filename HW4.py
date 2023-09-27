@@ -42,3 +42,6 @@ for token in doc:
 nlp_large = spacy.load('en_core_web_lg')
 target_word = nlp_large('word_to_find_similar_words_for')
 print([word.text for word in nlp_large.vocab if word.has_vector and word.is_lower and word.is_alpha and not word.is_stop and word.similarity(target_word) > 0.5])
+
+
+#------------ Question 1 end -------------------------------------------
