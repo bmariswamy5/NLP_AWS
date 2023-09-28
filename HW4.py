@@ -6,7 +6,7 @@ import spacy
 #-----------------------------------------
 # 1) Load the data using pandas
 
-data = pd.read_csv("data.csv")
+data = pd.read_csv("/home/ubuntu/NLP_AWS/data1.csv")
 
 # 2) to find word level attributes using spacy
 nlp = spacy.load("en_core_web_sm")
