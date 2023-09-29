@@ -8,82 +8,83 @@ nlp_large = spacy.load('en_core_web_lg')
 # 1) Load the data using pandas
 
 data = pd.read_csv("/home/ubuntu/NLP_AWS/data.csv")
-word_attributes_list= []
-entity_list = []
-noun_phrases_list = []
-grammatical_structure_list = []
-similar_words_list = []
 
-for title_text in data['uuid']:
-    # Process the text using SpaCy
-    doc = nlp(title_text)
-    doc_large = nlp_large(title_text)
-    # 2)word attributes
-    word_attributes = pd.DataFrame({
+
+
+word_attributions_all = pd.DataFrame(columns=['Tokenized word', 'StartIndex', 'Lemma', 'Punctuation', 'Whitespace', 'WordShape', 'PartOfSpeech', 'POSTag'])
+entities_all = pd.DataFrame(columns=['Entity', 'Label'])
+noun_phrases_all = pd.DataFrame(columns=['Noun Phrase', 'Label', 'Root'])
+grammatical_structure_all = pd.DataFrame(columns=['Text', 'Dependency', 'Head Text', 'Head POS', 'Children'])
+similarity_scores = []
+
+for index, row in data.iterrows():
+    # Get the title from the current row
+    texts = row['uuid']
+    doc = nlp(texts)
+    word_attributions = pd.DataFrame({
         'Tokenized word': [token.text for token in doc],
         'StartIndex': [token.idx for token in doc],
         'Lemma': [token.lemma_ for token in doc],
         'Punctuation': [token.is_punct for token in doc],
-        'White space': [token.is_space for token in doc],
+        'Whitespace': [token.is_space for token in doc],
         'WordShape': [token.shape_ for token in doc],
         'PartOfSpeech': [token.pos_ for token in doc],
         'POSTag': [token.tag_ for token in doc]
     })
-    word_attributes_list.append(word_attributes)
-    # 3)  entities
-    entities = [(entity.text, entity.label_) for entity in doc.ents]
-    entity_list.append(entities)
+    word_attributions_all = pd.concat([word_attributions_all, word_attributions])
 
-    # 4)noun phrases
-    noun_phrases_info = []
-    for chunk in doc.noun_chunks:
-        noun_phrases_info.append({
-            'Noun Phrase': chunk.text,
-            'Label': chunk.root.dep_,
-            'Root': chunk.root.text
-        })
-    noun_phrases_list.append(pd.DataFrame(noun_phrases_info))
+    entities = [(ent.text, ent.label_) for ent in doc.ents]
+    entities_df = pd.DataFrame(entities, columns=['Entity', 'Label'])
+    entities_all = pd.concat([entities_all, entities_df])
 
-    # 5) Grammatical structure
-    grammatical_structure_info = []
-    for token in doc:
-        grammatical_structure_info.append({
-            'Text': token.text,
-            'Dependency': token.dep_,
-            'Head Text': token.head.text,
-            'Head POS': token.head.pos_,
-            'Children': [child.text for child in token.children]
-        })
-    grammatical_structure_list.append(pd.DataFrame(grammatical_structure_info))
-
-    # 6)similarity
-    target_word = "example"  # Change this to your desired target word
-    similar_words = [word.text for word in nlp_large.vocab if
-                     word.has_vector and word.is_lower and word.text != target_word and doc_large.similarity(
-                         nlp_large(word.text)) > 0.5]
-    similar_words_list.append(similar_words)
-
-print("Word-Level Attributions:")
-for word_attributes in word_attributes_list:
-    print(word_attributes)
-
-print("\nNamed Entities:")
-for entities in entity_list:
-    print(entities)
-
-print("\nNoun Phrases:")
-for noun_phrases_info in noun_phrases_list:
-    print(noun_phrases_info)
-
-print("\nGrammatical Structure Analysis:")
-for grammatical_structure_info in grammatical_structure_list:
-    print(grammatical_structure_info)
-
-print("\nSimilar Words:")
-for similar_words in similar_words_list:
-    print(similar_words)
+print(word_attributions_all)
+print(entities_all)
 
 
+for index, row in data.iterrows():
+    # Get the title from the current row
+    text1 = row['site_url']
+
+    # Tokenize the text
+    doc1 = nlp(text1)
+    doc_large = nlp_large(text1)
+    # Initialize lists to store noun phrases, labels, and roots for the current title
+    noun_phrases = []
+    labels = []
+    roots = []
+
+    # Chunk noun phrases, label them, and find roots for the current title
+    for chunk in doc1.noun_chunks:
+        noun_phrases.append(chunk.text)
+        labels.append(chunk.root.text)
+        roots.append(chunk.root.head.text)
+
+    # Create a DataFrame for the current title's results
+    noun_phrases_df = pd.DataFrame({
+        'Noun Phrase': noun_phrases,
+        'Label': labels,
+        'Root': roots
+    })
+
+    # Concatenate the results for the current title to the overall DataFrame
+    noun_phrases_all = pd.concat([noun_phrases_all, noun_phrases_df])
+    dependency_info = []
+    for token in doc1:
+        dependency_info.append(
+            (token.text, token.dep_, token.head.text, token.head.pos_, [child.text for child in token.children]))
+    grammatical_structure_df = pd.DataFrame(dependency_info,columns=['Text', 'Dependency', 'Head Text', 'Head POS', 'Children'])
+    grammatical_structure_all = pd.concat([grammatical_structure_all, grammatical_structure_df])
+
+    word1 = row['site_url']
+    word2 = row['site_url']
+    similarity = nlp_large(word1).similarity(nlp_large(word2))
+    similarity_scores.append((word1, word2, similarity))
+    similarity_df = pd.DataFrame(similarity_scores, columns=['word1', 'word2', 'Similarity'])
+
+
+print(noun_phrases_all)
+print(grammatical_structure_all)
+print(similarity_df)
 
 #------------ Question 1 end -------------------------------------------
 
