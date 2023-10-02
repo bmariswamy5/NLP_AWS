@@ -50,4 +50,4 @@ for i, sentence in enumerate(doc.sents, 1):
     nouns = [token.text for token in sentence if token.pos_ == 'NOUN']
     num_nouns = len(nouns)
     print(f"Sentence {i}: {num_nouns} nouns")
-# I have selected noun feature to count number of noun that occur in the  given sample text
+# I have selected noun feature to count number of noun that occur in the  given sample text.Nouns often represent the main subjects or objects discussed in a text. Counting nouns can help identify the central topics or themes of the text, which is essential for tasks like topic modeling and content categorizatio
