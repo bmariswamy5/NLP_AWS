@@ -21,7 +21,7 @@ with open('/home/ubuntu/NLP_AWS/war_and_peace.txt','r',encoding='utf-8') as f:
     text1=f.readlines()
 
 names={}
-pattern=r'\b[A-Z][a-zA-Z]*ski\b'
+pattern=r'\b[a-zA-Z]*ski\b'
 
 for line in text1:
     matches=re.findall(pattern,line)
