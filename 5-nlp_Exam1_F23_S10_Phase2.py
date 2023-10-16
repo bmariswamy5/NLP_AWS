@@ -1,9 +1,8 @@
 #**********************************
-
-
-
-
-
+import nltk
+from nltk.corpus import movie_reviews
+from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
+import pandas as pd
 #**********************************
 #==================================================================================================================================================================
 # Q1:
@@ -20,12 +19,38 @@ Calculate the accuracy of your predicted sentiment and true sentiments.
 #==================================================================================================================================================================
 
 print(20*'-' + 'Begin Q1' + 20*'-')
+nltk.download('movie_reviews')
 
+# Load the movie reviews dataset
+positive_reviews = [movie_reviews.raw(file_id) for file_id in movie_reviews.fileids('pos')]
+negative_reviews = [movie_reviews.raw(file_id) for file_id in movie_reviews.fileids('neg')]
 
+# Initialize the VADER Sentiment Analyzer
+analyzer = SentimentIntensityAnalyzer()
 
+# Define a function to get sentiment labels
+def get_sentiment(text):
+    sentiment = analyzer.polarity_scores(text)
+    compound_score = sentiment['compound']
+    if compound_score >= 0.05:
+        return 'positive'
+    elif compound_score <= -0.05:
+        return 'negative'
+    else:
+        return 'neutral'
 
+# Get true sentiments and perform sentiment analysis
+true_sentiments = ['positive'] * len(positive_reviews) + ['negative'] * len(negative_reviews)
+all_reviews = positive_reviews + negative_reviews
+predicted_sentiments = [get_sentiment(review) for review in all_reviews]
 
+# Create a Pandas DataFrame
+df = pd.DataFrame({'Sentences': all_reviews, 'True Sentiment': true_sentiments, 'Predicted Sentiment': predicted_sentiments})
 
-
-
+# View DataFrame and Calculate Accuracy
+print(df)
+accuracy = (df['True Sentiment'] == df['Predicted Sentiment']).mean()
+print(f'Accuracy: {accuracy:.2%}')
 print(20*'-' + 'End Q1' + 20*'-')
+
+
