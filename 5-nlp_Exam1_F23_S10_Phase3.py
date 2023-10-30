@@ -74,7 +74,7 @@ X_train_tfidf = vectorizer.fit_transform(X_train)
 X_test_tfidf = vectorizer.transform(X_test)
 
 # Train a Logistic Regression classifier
-clf = LogisticRegression(max_iter=1000)
+clf = LogisticRegression(max_iter=3000)
 clf.fit(X_train_tfidf, y_train)
 
 # Predict on the test data
