@@ -4,11 +4,18 @@ from torch.utils.data import DataLoader, Dataset
 import time
 import os
 import csv
+import torch
+from torch import nn
+from torchtext.data.utils import get_tokenizer
+from torchtext.vocab import build_vocab_from_iterator
+from torch.utils.data import DataLoader
+from torchtext.datasets import AG_NEWS
+import time
 
 # Define a custom dataset class
 class AGNewsDataset(Dataset):
     def __init__(self, split, transform=None):
-        assert split in ['train', 'test']
+        assert split in ['train1', 'test']
         self.data = self.load_data(split)
         self.transform = transform
 
@@ -84,7 +91,7 @@ BATCH_SIZE = 64
 emsize = 128
 
 # Load the AG_NEWS dataset
-train_dataset = AGNewsDataset(split='train', transform=text_pipeline)
+train_dataset = AGNewsDataset(split='train1', transform=text_pipeline)
 test_dataset = AGNewsDataset(split='test', transform=text_pipeline)
 
 train_dataloader = DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True, collate_fn=collate_batch)
