@@ -11,6 +11,8 @@ from torchtext.vocab import build_vocab_from_iterator
 from torch.utils.data import DataLoader
 from torchtext.datasets import AG_NEWS
 import time
+from torchtext.vocab import GloVe
+
 
 # Define a custom dataset class
 class AGNewsDataset(Dataset):
@@ -53,10 +55,13 @@ def text_pipeline(text):
     return torch.tensor(token_ids, dtype=torch.int64)
 
 
-
-
 # Create data loaders
+tokenizer = get_tokenizer('basic_english')
+train_dataset = AGNewsDataset(split='train1', transform=text_pipeline)
+test_dataset = AGNewsDataset(split='test', transform=text_pipeline)
 
+vocab = build_vocab_from_iterator(map(tokenizer, [data[1] for data in train_dataset]), specials=["<unk>"])
+vocab.set_default_index(vocab["<unk>"])
 
 # Define your vocabulary if necessary
 vocab = {}  # You can build your vocabulary here if needed
@@ -85,23 +90,23 @@ class TextClassificationModel(nn.Module):
         return self.fc(embedded)
 
 
-EPOCHS = 100
+EPOCHS = 30
 LR = 0.001
-BATCH_SIZE = 64
-emsize = 128
+BATCH_SIZE = 128
+emsize = 256
+hidden_dim = 256  # Increase hidden dimensions
+num_layers = 2
+dropout = 0.3  # Add more dropout
 
 # Load the AG_NEWS dataset
 train_dataset = AGNewsDataset(split='train1', transform=text_pipeline)
 test_dataset = AGNewsDataset(split='test', transform=text_pipeline)
 
-train_dataloader = DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True, collate_fn=collate_batch)
-test_dataloader = DataLoader(test_dataset, batch_size=BATCH_SIZE, shuffle=True, collate_fn=collate_batch)
+train_dataloader = DataLoader(train_dataset, batch_size=128, shuffle=True, collate_fn=collate_batch)
+test_dataloader = DataLoader(test_dataset, batch_size=128, shuffle=True, collate_fn=collate_batch)
+optimizer = torch.optim.Adam(model.parameters(), lr=LR)
+scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=10, gamma=0.5)  # Learning rate scheduler
 
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-num_class = len(set([label for (label,_,_) in train_dataloader]))
-vocab_size = len(vocab)
-
-model = TextClassificationModel(vocab_size, emsize, num_class).to(device)
 
 # Define the training and evaluation functions
 def train(dataloader):
@@ -149,6 +154,7 @@ for epoch in range(1, EPOCHS + 1):
     print('-' * 59)
     print('| end of epoch {:3d} | time: {:5.2f}s | valid accuracy {:8.3f} '.format(epoch, time.time() - epoch_start_time, accu_val))
     print('-' * 59)
+    scheduler.step()
 
 # Save the trained model
 torch.save(model.state_dict(), 'model_weights.pt')
