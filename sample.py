@@ -1,63 +1,58 @@
-import nltk
-from nltk.tokenize import word_tokenize
-from nltk import pos_tag
 import numpy as np
-from sklearn.linear_model import SGDRegressor
-from sklearn.metrics import mean_squared_error
+from sklearn.feature_extraction.text import CountVectorizer
 
-# Sample sentences
-sentences = [
-    'This is a sentence one, and I want to all data here.',
-    'Natural language processing has nice tools for text mining and text classification. I need to work hard and try a lot of exercises.',
-    'Ohhhhhh what',
-    'I am not sure what I am doing here.',
-    'Neural Network is a power method. It is a very flexible architecture'
+
+class Perceptron:
+    def __init__(self, learning_rate=0.01, n_iters=1000):
+        self.lr = learning_rate
+        self.n_iters = n_iters
+        self.weights = None
+        self.bias = None
+
+    def fit(self, X, y):
+        # Preprocess the text data using CountVectorizer
+        vectorizer = CountVectorizer()
+        X = vectorizer.fit_transform(X)
+
+        # Initialize weights and bias
+        n_samples, n_features = X.shape
+        self.weights = np.zeros(n_features)
+        self.bias = 0
+
+        # Training the Perceptron
+        for _ in range(self.n_iters):
+            for i in range(n_samples):
+                if y[i] * (np.dot(X[i], self.weights) + self.bias) <= 0:
+                    self.weights += self.lr * y[i] * X[i]
+                    self.bias += self.lr * y[i]
+
+    def predict(self, X):
+        # Preprocess input text
+        X = vectorizer.transform(X)
+
+        # Make predictions
+        predictions = np.sign(np.dot(X, self.weights) + self.bias)
+        return predictions
+
+
+# Sample training data
+X_train = [
+    "I loved this movie, it was so much fun!",
+    "The food at this restaurant is not good. Don't go there!",
+    "The new iPhone looks amazing, can't wait to get my hands on it."
+]
+y_train = [1, -1, 1]
+
+# Initialize and train the Perceptron model
+perceptron = Perceptron()
+perceptron.fit(X_train, y_train)
+
+# Sample test data
+X_test = [
+    "This is a great product, I highly recommend it.",
+    "I had a terrible experience with their customer service."
 ]
 
-# Initialize NLTK for POS tagging
-nltk.download('punkt')
-nltk.download('averaged_perceptron_tagger')
-
-# Lists to store feature vectors and sentence lengths
-feature_vectors = []
-sentence_lengths = []
-
-# POS tags of interest (verbs and nouns)
-pos_tags_of_interest = ['VB', 'VBD', 'VBG', 'VBN', 'VBP', 'VBZ', 'NN', 'NNS', 'NNP', 'NNPS']
-
-for sentence in sentences:
-    # Tokenize the sentence and get POS tags
-    words = word_tokenize(sentence)
-    pos_tags = pos_tag(words)
-
-    # Count the verbs and nouns
-    num_verbs_nouns = sum(1 for word, pos in pos_tags if pos in pos_tags_of_interest)
-
-    # Calculate the sentence length
-    sentence_length = len(words)
-
-    # Create a feature vector [num_verbs_nouns, sentence_length]
-    feature_vector = [num_verbs_nouns, sentence_length]
-
-    # Append to the lists
-    feature_vectors.append(feature_vector)
-    sentence_lengths.append(sentence_length)
-
-# Convert lists to numpy arrays
-X = np.array(feature_vectors)
-y = np.array(sentence_lengths)
-
-# Initialize and train an ADALINE network
-adline = SGDRegressor(eta0=0.01, max_iter=10000, tol=1e-3)
-adline.fit(X, y)
-
-# Predict sentence lengths
-predicted_lengths = adline.predict(X)
-
-# Calculate mean squared error
-mse = mean_squared_error(y, predicted_lengths)
-
-print("Trained ADALINE Network:")
-print("Weights (Coefficients):", adline.coef_)
-print("Intercept:", adline.intercept_)
-print("Mean Squared Error (MSE):", mse)
+# Make predictions
+predictions = perceptron.predict(X_test)
+print("Predictions:", predictions)
