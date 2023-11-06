@@ -1,58 +1,48 @@
 import numpy as np
-from sklearn.feature_extraction.text import CountVectorizer
+import torch
+import torch.nn as nn
+import torch.optim as optim
 
 
-class Perceptron:
-    def __init__(self, learning_rate=0.01, n_iters=1000):
-        self.lr = learning_rate
-        self.n_iters = n_iters
-        self.weights = None
-        self.bias = None
+vocab_size = 10000
+embedding_dim = 100
 
-    def fit(self, X, y):
-        # Preprocess the text data using CountVectorizer
-        vectorizer = CountVectorizer()
-        X = vectorizer.fit_transform(X)
+# Create a simple autoencoder class
+class Autoencoder(nn.Module):
+    def __init__(self, vocab_size, embedding_dim):
+        super(Autoencoder, self).__init__()
+        self.encoder = nn.Sequential(
+            nn.Embedding(vocab_size, embedding_dim),
+            nn.Linear(embedding_dim, 256),  # You can adjust the size of the hidden layer
+            nn.ReLU()
+        )
+        self.decoder = nn.Sequential(
+            nn.Linear(256, embedding_dim),
+            nn.Sigmoid()
+        )
 
-        # Initialize weights and bias
-        n_samples, n_features = X.shape
-        self.weights = np.zeros(n_features)
-        self.bias = 0
+    def forward(self, x):
+        x = self.encoder(x)
+        x = self.decoder(x)
+        return x
 
-        # Training the Perceptron
-        for _ in range(self.n_iters):
-            for i in range(n_samples):
-                if y[i] * (np.dot(X[i], self.weights) + self.bias) <= 0:
-                    self.weights += self.lr * y[i] * X[i]
-                    self.bias += self.lr * y[i]
+# Create the autoencoder model
+autoencoder = Autoencoder(vocab_size, embedding_dim)
 
-    def predict(self, X):
-        # Preprocess input text
-        X = vectorizer.transform(X)
+# Define loss function and optimizer
+criterion = nn.MSELoss()
+optimizer = optim.Adam(autoencoder.parameters(), lr=0.001)
 
-        # Make predictions
-        predictions = np.sign(np.dot(X, self.weights) + self.bias)
-        return predictions
+# Training your autoencoder with some sample data
 
+x_train = torch.randint(0, vocab_size, (100,)).long()  # Corrected size to match 100 samples
 
-# Sample training data
-X_train = [
-    "I loved this movie, it was so much fun!",
-    "The food at this restaurant is not good. Don't go there!",
-    "The new iPhone looks amazing, can't wait to get my hands on it."
-]
-y_train = [1, -1, 1]
+for epoch in range(10):
+    optimizer.zero_grad()
+    outputs = autoencoder(x_train)
+    loss = criterion(outputs, autoencoder.encoder[0].weight[x_train])  # Use the model's own encoder for the target
+    loss.backward()
+    optimizer.step()
 
-# Initialize and train the Perceptron model
-perceptron = Perceptron()
-perceptron.fit(X_train, y_train)
-
-# Sample test data
-X_test = [
-    "This is a great product, I highly recommend it.",
-    "I had a terrible experience with their customer service."
-]
-
-# Make predictions
-predictions = perceptron.predict(X_test)
-print("Predictions:", predictions)
+# After training, you can extract the word embeddings from the encoder
+word_embeddings = autoencoder.encoder[0].weight.data

@@ -78,7 +78,7 @@ clf.fit(X, y)
 # Test the classifier
 test_sentences = [
     "The perceptron network is amazing.",
-    "Real data is essential for testing classifiers."
+    "Real data is  not essential for testing classifiers."
 ]
 
 # Vectorize the test sentences
@@ -94,55 +94,8 @@ for i in range(len(test_sentences)):
 
 
 print(20 * '-' + 'End Q2' + 20 * '-')
-# =================================================================
-# Class_Ex2_1:
-
-# For preprocessing, the text data is vectorized into feature vectors using a bag-of-words approach.
-# Each sentence is converted into a vector where each element represents the frequency of a word from the vocabulary.
-# This allows the textual data to be fed into the perceptron model.
-
-# The training data consists of sample text sentences and corresponding sentiment labels (positive or negative).
-# The text is vectorized and used to train the Perceptron model to associate words with positive/negative sentiment.
-
-# For making predictions, new text input is vectorized using the same vocabulary. Then the Perceptron model makes a
-# binary prediction on whether the new text has positive or negative sentiment.
-# The output is based on whether the dot product of the input vector with the trained weight vectors is positive
-# or negative.
-
-# This provides a simple perceptron model for binary sentiment classification on textual data. The vectorization
-# allows text to be converted into numerical features that the perceptron model can process. Overall,
-# it demonstrates how a perceptron can be used for an NLP text classification task.
-# ----------------------------------------------------------------
-print(20 * '-' + 'Begin Q2_1' + 20 * '-')
-import numpy as np
-
-class Perceptron:
-    def __init__(self, learning_rate=0.01, n_iters=1000):
-        self.lr = learning_rate
-        self.n_iters = n_iters
-        self.weights = None
-        self.bias = None
-
-    def fit(self, X, y):
-        print('TO DO')
-
-    def predict(self, X):
-        print('TO DO')
-        return
 
 
-# Sample training data
-X_train = np.array([
-    "I loved this movie, it was so much fun!",
-    "The food at this restaurant is not good. Don't go there!",
-    "The new iPhone looks amazing, can't wait to get my hands on it."
-])
-y_train = np.array([1, -1, 1])
-
-
-
-
-print(20 * '-' + 'End Q2_1' + 20 * '-')
 # =================================================================
 # Class_Ex3:
 # The following function is given
@@ -196,7 +149,7 @@ ax.set_xlabel('x1')
 ax.set_ylabel('x2')
 ax.set_zlabel('F(x)')
 ax.set_title('3D Plot of F(x)')
-
+plt.show()
 # Plot the contour plot with optimization path
 plt.figure()
 plt.contour(x1, x2, z, levels=20, cmap='viridis')
@@ -300,6 +253,80 @@ print(20 * '-' + 'End Q4' + 20 * '-')
 # ----------------------------------------------------------------
 print(20 * '-' + 'Begin Q5' + 20 * '-')
 
+import numpy as np
+import pandas as pd
+import nltk
+from nltk.corpus import stopwords
+from sklearn.model_selection import train_test_split
+from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.metrics import classification_report, mean_squared_error, f1_score
+from sklearn.preprocessing import LabelEncoder
+from sklearn.neural_network import MLPClassifier
+
+# Load the dataset
+df = pd.read_csv("/home/ubuntu/NLP_AWS/data_set.csv")
+
+# Data preprocessing
+nltk.download('stopwords')
+stop_words = set(stopwords.words('english'))
+
+# Define a function for text preprocessing
+def preprocess_text(text):
+    text = text.lower()  # Lowercase
+    text = ''.join([char for char in text if char.isalpha() or char.isspace()])  # Remove punctuation
+    words = text.split()
+    words = [word for word in words if word not in stop_words]  # Remove stopwords
+    return ' '.join(words)
+
+# Apply text preprocessing to the 'text' column
+df['text'] = df['text'].apply(preprocess_text)
+
+# Encode the 'spam' column (convert it to numerical labels)
+label_encoder = LabelEncoder()
+df['label'] = label_encoder.fit_transform(df['label'])
+
+# Split the data into training and testing sets
+X = df['text']
+y = df['label']
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# Feature extraction using Count Vectorization
+vectorizer = CountVectorizer(max_features=1000)  # You can adjust the number of features
+X_train = vectorizer.fit_transform(X_train)
+X_test = vectorizer.transform(X_test)
+
+# Define a two-layer neural network (MLP)
+clf = MLPClassifier(hidden_layer_sizes=(10,), max_iter=100, early_stopping=True, random_state=42)
+
+# Train the neural network
+clf.fit(X_train, y_train)
+
+# Make predictions on training and testing sets
+y_train_pred = clf.predict(X_train)
+y_test_pred = clf.predict(X_test)
+
+# Calculate Mean Squared Error
+mse_train = mean_squared_error(y_train, y_train_pred)
+mse_test = mean_squared_error(y_test, y_test_pred)
+
+# Generate classification reports
+report_train = classification_report(y_train, y_train_pred)
+report_test = classification_report(y_test, y_test_pred)
+
+# Calculate F1 score and include it in the classification reports
+f1_train = f1_score(y_train, y_train_pred)
+f1_test = f1_score(y_test, y_test_pred)
+
+# Print results
+print(f"Mean Squared Error (Train): {mse_train}")
+print(f"Mean Squared Error (Test): {mse_test}")
+print(f"F1 Score (Train): {f1_train}")
+print(f"F1 Score (Test): {f1_test}")
+print("\nClassification Report (Train):\n", report_train)
+print("\nClassification Report (Test):\n", report_test)
+#This code uses the MLPClassifier from scikit-learn to create a two-layer neural network with early stopping based on validation loss.
+print(20 * '-' + 'End Q5' + 20 * '-')
+
 # =================================================================
 # Class_Ex6:
 
@@ -323,6 +350,56 @@ print(20 * '-' + 'Begin Q5' + 20 * '-')
 
 # ----------------------------------------------------------------
 print(20 * '-' + 'Begin Q6' + 20 * '-')
+import numpy as np
+import torch
+import torch.nn as nn
+import torch.optim as optim
+
+
+vocab_size = 10000
+embedding_dim = 100
+
+# Create a simple autoencoder class
+class Autoencoder(nn.Module):
+    def __init__(self, vocab_size, embedding_dim):
+        super(Autoencoder, self).__init__()
+        self.encoder = nn.Sequential(
+            nn.Embedding(vocab_size, embedding_dim),
+            nn.Linear(embedding_dim, 256),  # You can adjust the size of the hidden layer
+            nn.ReLU()
+        )
+        self.decoder = nn.Sequential(
+            nn.Linear(256, embedding_dim),
+            nn.Sigmoid()
+        )
+
+    def forward(self, x):
+        x = self.encoder(x)
+        x = self.decoder(x)
+        return x
+
+# Create the autoencoder model
+autoencoder = Autoencoder(vocab_size, embedding_dim)
+
+# Define loss function and optimizer
+criterion = nn.MSELoss()
+optimizer = optim.Adam(autoencoder.parameters(), lr=0.001)
+
+# Training your autoencoder with some sample data
+
+x_train = torch.randint(0, vocab_size, (100,)).long()  # Corrected size to match 100 samples
+
+for epoch in range(10):
+    optimizer.zero_grad()
+    outputs = autoencoder(x_train)
+    loss = criterion(outputs, autoencoder.encoder[0].weight[x_train])  # Use the model's own encoder for the target
+    loss.backward()
+    optimizer.step()
+
+# After training, you can extract the word embeddings from the encoder
+word_embeddings = autoencoder.encoder[0].weight.data
+
+print(20 * '-' + 'End Q6' + 20 * '-')
 # =================================================================
 # Class_Ex7:
 # The objective of this exercise to show the inner workings of Word2Vec in python using numpy.
