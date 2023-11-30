@@ -587,7 +587,6 @@ def create_statute_clusters(doc,old_statute_clusters,new_statute_clusters):
 
     return clusters
 
-
 def check_stat(text):
     regex_crpc = r'(?i)\b(((criminal|cr)\.*\s*(procedure|p)\.*\s*(c|code)\.*)|(code\s*of\s*criminal\s*procedure))\s*'
     regex_ipc = r'(?i)\b((i|indian)+\.*\s*(penal|p)\.*\s*(c|code))\.*'
