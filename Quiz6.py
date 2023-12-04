@@ -128,7 +128,7 @@ def predict_gender(model, name, char_to_index):
     return gender
 
 # Replace these names with your own samples
-sample_names = ["John", "Emma", "Michael", "Sophia"]
+sample_names = ["Leela", "Tom", "Jerry", "Revanth"]
 
 for name in sample_names:
     gender_prediction = predict_gender(model, name.lower(), char_to_index)
